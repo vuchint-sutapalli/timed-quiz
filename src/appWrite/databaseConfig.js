@@ -39,7 +39,7 @@ export class DbService {
     try {
       return await this.databases.createDocument(
         config.appWriteDatabaseId,
-        config.appWriteCollectionId,
+        config.appWriteQuestionCollectionId,
         ID.unique(),
         {
           title,
@@ -60,12 +60,60 @@ export class DbService {
     try {
       await this.databases.deleteDocument(
         config.appWriteDatabaseId,
-        config.appWriteCollectionId,
+        config.appWriteQuestionCollectionId,
         docId
       );
       return true;
     } catch (error) {
       console.log("Appwrite service :: deleteQuestion() :: ", error);
+      return false;
+    }
+  }
+
+  async getQuizMetadata(quizId) {
+    try {
+      const result = await this.databases.listDocuments(
+        config.appWriteDatabaseId,
+        config.appWriteQuizCollectionId,
+        [
+          Query.equal("$id", quizId),
+          Query.select(["$id", "quizTitle", "questions"]),
+        ]
+      );
+      const queriedQuiz = result.documents[0];
+
+      const relevantQuestions = await this.databases.listDocuments(
+        config.appWriteDatabaseId,
+        config.appWriteQuestionCollectionId,
+        [
+          Query.contains("$id", queriedQuiz.questions),
+          Query.select(["$id", "difficulty", "type"]),
+        ]
+      );
+
+      queriedQuiz.questions = relevantQuestions.documents;
+
+      return queriedQuiz;
+    } catch (error) {
+      console.log("Appwrite service :: deleteQuestion() :: ", error);
+      return false;
+    }
+  }
+
+  async createQuizSession({ user_id, quiz_id, started_at }) {
+    try {
+      return await this.databases.createDocument(
+        config.appWriteDatabaseId,
+        config.appWriteQuizSessionsCollectionId,
+        ID.unique(),
+        {
+          quiz_id,
+          started_at,
+          user_id,
+        }
+      );
+    } catch (error) {
+      console.log("Appwrite service :: createQuizSession() :: ", error);
       return false;
     }
   }

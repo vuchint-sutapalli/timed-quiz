@@ -5,6 +5,9 @@ import LandingPage from "./Pages/Landing/index.jsx";
 import Login from "./Pages/Login.jsx";
 import Protected from "./components/ProtectedWrapper.jsx";
 import SignUp from "./Pages/SignUp.jsx";
+import TimedQuiz from "./Pages/TimedQuiz";
+import authService from "./appWrite/auth.js";
+
 const router = createBrowserRouter([
   {
     element: <AppLayout />,
@@ -20,6 +23,10 @@ const router = createBrowserRouter([
             <Login />
           </Protected>
         ),
+      },
+      {
+        path: "/timed-quiz",
+        element: <TimedQuiz />,
       },
 
       {

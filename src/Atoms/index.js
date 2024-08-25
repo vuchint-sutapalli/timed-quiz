@@ -1,4 +1,5 @@
 import { atom, selector } from "recoil";
+import { TIME_PER_QUESTION } from "../Pages/TimedQuiz/constants";
 
 const authState = atom({
   key: "authState", // unique ID (with respect to other atoms/selectors)
@@ -8,6 +9,51 @@ const authState = atom({
   },
 });
 
+const quizMetaData = atom({
+  key: "quizMetaData", // unique ID (with respect to other atoms/selectors)
+  default: {},
+});
+
+const quizEstimatedTime = selector({
+  key: "quizEstimatedTime",
+  get: ({ get }) => {
+    let qns = get(quizMetaData).questions;
+    console.log("computing..........");
+    if (qns) {
+      return qns.reduce(
+        (total, question) => total + TIME_PER_QUESTION[question.difficulty],
+        0
+      );
+    }
+    return null;
+  },
+});
+
+const quizMetaBreakdown = selector({
+  key: "quizMetaBreakdown",
+  get: ({ get }) => {
+    let quizTime = get(quizEstimatedTime);
+    let qns = get(quizMetaData).questions;
+
+    console.log("computing breakdown..........");
+
+    const questionTypes = [...new Set(qns.map((q) => q.type))];
+    const difficulties = [...new Set(qns.map((q) => q.difficulty))];
+
+    return {
+      quizTime: quizTime,
+      totalQuestions: qns?.length,
+      types: questionTypes.map((type) => ({
+        type,
+        count: qns.filter((q) => q.type === type).length,
+      })),
+      difficulties: difficulties.map((difficulty) => ({
+        difficulty,
+        count: qns.filter((q) => q.difficulty === difficulty).length,
+      })),
+    };
+  },
+});
 const textState = atom({
   key: "textState", // unique ID (with respect to other atoms/selectors)
   default: "", // default value (aka initial value)
@@ -22,4 +68,11 @@ const charCountState = selector({
   },
 });
 
-export { textState, charCountState, authState };
+export {
+  textState,
+  charCountState,
+  authState,
+  quizMetaData,
+  quizEstimatedTime,
+  quizMetaBreakdown,
+};
