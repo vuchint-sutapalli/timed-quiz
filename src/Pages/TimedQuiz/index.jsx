@@ -1,53 +1,43 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useQuery from "../../hooks/useQuery";
+import RulesWrapper from "./RulesWrapper";
 import dbService from "../../appWrite/databaseConfig";
-
-import RulesPage from "./Rules";
 import { authState, quizMetaData } from "../../Atoms";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { useNavigate } from "react-router-dom";
+
+import { useRecoilValue } from "recoil";
+import ResultsView from "./Results";
 
 const TimedQuiz = () => {
   let { getParam } = useQuery();
   const quizId = getParam("id");
-  const [quizMeta, setQuizMeta] = useRecoilState(quizMetaData);
+  const [quizState, setQuizState] = useState(null);
+  const quizMeta = useRecoilValue(quizMetaData);
   const { userData } = useRecoilValue(authState);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    init(quizId);
-  }, [quizId]);
+    if (quizId && userData?.$id) {
+      checkSession(userData.$id, quizId);
+    }
+  }, [quizId, userData]);
 
-  async function init(qid) {
-    const quizData = await dbService.getQuizMetadata(qid);
-    setQuizMeta(quizData);
+  async function checkSession(userId, quizId) {
+    const { state } = await dbService.checkQuizSessionState({
+      user_id: userId,
+      quiz_id: quizId,
+    });
+    setQuizState(state);
+    console.log(state);
   }
 
-  const handleStartQuiz = async () => {
-    try {
-      const quizSession = await dbService.createQuizSession({
-        quiz_id: quizMeta.$id,
-        user_id: userData.$id,
-        started_at: new Date().toISOString(),
-      });
-      console.log(quizSession);
-
-      // Redirect to the quiz interface
-      navigate(`/quiz/${quizMeta.$id}`, {
-        state: { sessionId: quizSession.$id },
-      });
-    } catch (error) {
-      console.error("Error starting quiz:: handleStartQuiz()", error);
-      // Handle errors (e.g., show an error message)
-    }
-  };
-
   return (
-    <div>
-      {quizMeta?.$id ? (
-        <RulesPage quizData={quizMeta} onStart={handleStartQuiz} />
+    <>
+      <div>{quizMeta?.quizTitle}</div>
+      {quizState === "not_started" ? <RulesWrapper quizId={quizId} /> : null}
+      {quizState === "in_progress" ? <div>Quiz in progress</div> : null}
+      {quizState === "completed" ? (
+        <ResultsView score={quizState.score} quizTitle={quizMeta?.quizTitle} />
       ) : null}
-    </div>
+    </>
   );
 };
 

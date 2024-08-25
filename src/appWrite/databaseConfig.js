@@ -100,6 +100,47 @@ export class DbService {
     }
   }
 
+  async checkQuizSessionState({ user_id, quiz_id }) {
+    try {
+      // Query to find a document with the given userId and quizId
+      let state = "not_started";
+      let returnObj = {
+        completed_at: null,
+        is_completed: false,
+        score: null,
+        state: "not_started",
+      };
+      const response = await this.databases.listDocuments(
+        config.appWriteDatabaseId,
+        config.appWriteQuizSessionsCollectionId,
+        [Query.equal("user_id", user_id), Query.equal("quiz_id", quiz_id)]
+      );
+
+      if (response.total) {
+        let quizSession = response.documents[0];
+        if (quizSession?.is_completed) {
+          returnObj.completed_at = quizSession.completed_at;
+          returnObj.is_completed = quizSession.is_completed;
+          returnObj.score = quizSession.score;
+          returnObj.state = "completed";
+
+          state = "completed";
+        } else {
+          state = "in_progress";
+          returnObj.state = "in_progress";
+        }
+      }
+
+      console.log("respppp", response, returnObj);
+
+      // Check if any documents were found
+      return returnObj;
+    } catch (error) {
+      console.error("Appwrite service :: checkQuizSessionState() ::", error);
+      return false; // Optionally, handle error cases differently if needed
+    }
+  }
+
   async createQuizSession({ user_id, quiz_id, started_at }) {
     try {
       return await this.databases.createDocument(
