@@ -15,15 +15,22 @@ const AppLayout = () => {
   const init = async () => {
     const response = await authService.getCurrentUser();
     console.log("current user", response);
-    setAuth({
-      status: true,
-      userData: response,
-    });
+    if (response) {
+      setAuth({
+        status: true,
+        userData: response,
+      });
+    } else {
+      setAuth({
+        status: false,
+        userData: null,
+      });
+    }
   };
   return (
     <>
       <Header />
-      <main>
+      <main className="flex-grow overflow-auto flex flex-col items-center">
         <Outlet />
       </main>
       {/* <Footer /> */}

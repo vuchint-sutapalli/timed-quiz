@@ -35,12 +35,8 @@ function Login() {
     }
   };
 
-  // const onSubmit = (data) => {
-  //   console.log(data);
-  // };
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex justify-center w-full items-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit(logInUser)}
         className="bg-white p-6 rounded shadow-md w-full max-w-sm"

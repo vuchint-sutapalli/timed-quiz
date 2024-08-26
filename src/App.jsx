@@ -5,8 +5,8 @@ import LandingPage from "./Pages/Landing/index.jsx";
 import Login from "./Pages/Login.jsx";
 import Protected from "./components/ProtectedWrapper.jsx";
 import SignUp from "./Pages/SignUp.jsx";
-import TimedQuiz from "./Pages/TimedQuiz";
-import authService from "./appWrite/auth.js";
+import TimedQuizInstructions from "./Pages/TimedQuizInstructions";
+import TimedQuizPlayer from "./Pages/TimedQuizPlayer";
 
 const router = createBrowserRouter([
   {
@@ -14,19 +14,33 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <LandingPage />,
-      },
-      {
-        path: "/login",
         element: (
-          <Protected authentication={false}>
-            <Login />
+          <Protected authentication={true}>
+            <LandingPage />
           </Protected>
         ),
       },
       {
+        path: "/login",
+        element: <Login />,
+      },
+
+      {
         path: "/timed-quiz",
-        element: <TimedQuiz />,
+        element: (
+          <Protected authentication={true}>
+            <TimedQuizInstructions />
+          </Protected>
+        ),
+      },
+
+      {
+        path: "/play-quiz/:qId",
+        element: (
+          <Protected authentication={true}>
+            <TimedQuizPlayer />
+          </Protected>
+        ),
       },
 
       {

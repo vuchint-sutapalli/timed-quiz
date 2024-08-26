@@ -103,12 +103,13 @@ export class DbService {
   async checkQuizSessionState({ user_id, quiz_id }) {
     try {
       // Query to find a document with the given userId and quizId
-      let state = "not_started";
       let returnObj = {
         completed_at: null,
         is_completed: false,
         score: null,
         state: "not_started",
+        session_id: null,
+        started_at: null,
       };
       const response = await this.databases.listDocuments(
         config.appWriteDatabaseId,
@@ -118,15 +119,15 @@ export class DbService {
 
       if (response.total) {
         let quizSession = response.documents[0];
+        returnObj.session_id = quizSession.$id;
+        returnObj.started_at = quizSession.started_at;
+
         if (quizSession?.is_completed) {
           returnObj.completed_at = quizSession.completed_at;
           returnObj.is_completed = quizSession.is_completed;
           returnObj.score = quizSession.score;
           returnObj.state = "completed";
-
-          state = "completed";
         } else {
-          state = "in_progress";
           returnObj.state = "in_progress";
         }
       }

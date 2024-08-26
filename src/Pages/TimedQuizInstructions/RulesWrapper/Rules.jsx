@@ -1,5 +1,5 @@
 import { RULES, BREAKDOWN_LABELS } from "./constants"; // Adjust the path as needed
-import { quizMetaBreakdown } from "../../Atoms";
+import { quizMetaBreakdown } from "../../../Atoms";
 import { useRecoilValue } from "recoil";
 
 const RulesPage = ({ quizData, onStart }) => {

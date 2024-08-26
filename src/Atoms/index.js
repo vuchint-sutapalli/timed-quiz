@@ -1,10 +1,10 @@
 import { atom, selector } from "recoil";
-import { TIME_PER_QUESTION } from "../Pages/TimedQuiz/constants";
+import { TIME_PER_QUESTION } from "../Pages/TimedQuizInstructions/RulesWrapper/constants";
 
 const authState = atom({
   key: "authState", // unique ID (with respect to other atoms/selectors)
   default: {
-    status: false,
+    status: null,
     userData: null,
   },
 });
